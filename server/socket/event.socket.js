@@ -1,13 +1,30 @@
+import { serverConfig } from "../configs/server.config.js";
 import { serverData } from "../data/server.data.js";
-
+import { log } from "../debug/main.debug.js";
 
 /**
- * @description Recive the message from the client and resend to all group members
+ * Triggered when a client disconnects
+ */
+export const disconnect = (socket) => {
+  serverConfig.usersConected = serverConfig.usersConected.filter(
+    (m) => m != socket.id
+  );
+  serverData.groups.forEach((data) => {
+    data.members = data.members.filter((m) => m != socket);
+  });
+  log(
+    `User ${socket.id} disconnected: `,
+    serverConfig.usersConected
+  );
+}
+
+/**
+ * Recive the message from the client and resend to all group members
  * @param {*} socket socket to trigger the event
  * @param {*} data Data from client
  */
 export const message = (socket, data) => {
-  console.log(serverData.groups[data.targetGroup], data.targetGroup);
+  log(serverData.groups[data.targetGroup], data.targetGroup);
   serverData.groups[data.targetGroup].members.forEach((m) => {
     if (m != socket) {
       m.emit("message", {
@@ -20,7 +37,7 @@ export const message = (socket, data) => {
 };
 
 /**
- * @description Recive the group change request from the client
+ * Recive the group-change request from the client and process it
  * @param {*} socket socket to trigger the event
  * @param {*} data Data from client
  */
@@ -32,7 +49,7 @@ export const groupSwitch = (socket, data) => {
     targetGroup: data.targetGroup,
   };
   const currentGroup = serverData.groups[data.currentGroup];
-  console.log(data);
+  log(data);
   if (serverData.groups[data.targetGroup]) {
     const group = serverData.groups[data.targetGroup];
 
@@ -41,7 +58,7 @@ export const groupSwitch = (socket, data) => {
         group.members = [...group.members, socket];
         requestInfo.message = "Successfully";
         requestInfo.code = 1;
-        console.log(`User ${socket.id} add to group ${group.name}`);
+        log(`User ${socket.id} add to group ${group.name}`);
       } else {
         requestInfo.message = "Already in";
         requestInfo.code = 2;
@@ -66,6 +83,6 @@ export const groupSwitch = (socket, data) => {
   if (requestInfo.code == 1 && currentGroup) {
     currentGroup.members = currentGroup.members.filter((m) => m != socket);
   }
-  console.log(serverData.groups);
+  log(serverData.groups);
   socket.emit("groupSw", requestInfo);
 };

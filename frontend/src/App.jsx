@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
+import { log } from "./debug/main.debug";
 
 const socket = io("http://localhost:3000");
 
@@ -50,7 +51,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log(activesGroups);
+    log(activesGroups);
   }, [activesGroups]);
 
   const reciveGeneralInfo = info => {
@@ -63,7 +64,7 @@ function App() {
   };
 
   const reciveGroupRequest = (requestInfo) => {
-    console.log(requestInfo);
+    log(requestInfo);
     if (requestInfo.code == 1) {
       setCurrentGroup(requestInfo.targetGroup);
     }
