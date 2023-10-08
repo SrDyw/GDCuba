@@ -4,6 +4,6 @@ config();
 
 
 export const mainConfig = {
-    origin:'http://localhost:5173',
+    origin:'https://srdyw.github.io/gdcuba-client/',
     PORT: process.env.PORT || 3000
 }
